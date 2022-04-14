@@ -12,7 +12,7 @@ namespace TaeHoon_s_homework
         {
             Human yongha = new Human("Yongha", 50);
 
-            yongha.EquipWeapon(new WaterSword("SS", 50), Human.HandType.LeftHand);
+           Console.WriteLine($"{HandType.LeftHand}");
         }
     }
 }

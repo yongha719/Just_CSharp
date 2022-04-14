@@ -21,7 +21,7 @@ namespace TaeHoon_s_homework
             LeftHand = 0, RightHand = 1, end = 2
         }
 
-        public bool LeftEquip, RightEquip;
+        public bool LeftEquip, RightEquip, AlreadyEquip;
 
         string[] WeaponKinds = new string[(int)HandType.end];
 
@@ -30,8 +30,7 @@ namespace TaeHoon_s_homework
 
         bool sword = false, shield = false;
 
-        string CurJob = "Enpty_Job";
-        string PrevJob = "";
+        string Job = "Empty_Job";
 
         public void EquipWeapon(Weapon weapon, HandType handType)
         {
@@ -43,27 +42,37 @@ namespace TaeHoon_s_homework
             WeaponKinds[value] = weapon.GetType().Name;
 
 
-            if (value == 1)
+            if (value == 0)
             {
-                if (!RightEquip)
-                    RightEquip = true;
-                else RightEquip = false;
+                if (!LeftEquip)
+                    LeftEquip = true;
+                else
+                    AlreadyEquip = true;
             }
-            else LeftEquip = true;
-
+            else
+            {
+                RightEquip = true;
+            }
             if (weapon is Sword) sword = true;
             else if (weapon is Shield) shield = true;
 
-            SetJob();
+
         }
-        void SetJob()
+        public void Test(Weapon weapon)
+        {
+            if (weapon is Sword) Console.WriteLine("sword");
+            else if (weapon is Shield) Console.WriteLine("shield");
+        }
+
+        string CurJob()
         {
             if ((LeftEquip || RightEquip) && sword)
-                CurJob = "검사띠";
+                return "검사띠";
             else if ((LeftEquip || RightEquip) && shield)
-                CurJob = "탱커띠";
+                return "탱커띠";
             else if ((LeftEquip && RightEquip) && (sword && shield))
-                CurJob = "병사띠";
+                return "병사띠";
+            return "Empty_Job";
         }
         public void DisamountWeapon(HandType handType)
         {
@@ -72,14 +81,26 @@ namespace TaeHoon_s_homework
             if (value == 1) RightEquip = false;
             else LeftEquip = false;
             WeaponKinds[value] = "";
-
-            SetJob(sword, shield);
         }
 
         public void Action()
         {
+            if (!LeftEquip && !RightEquip)
+            {
+                Console.WriteLine($@"공격 시도..{Name}[{Job}] : 무기가 읎다 자식아");
+                return;
+            }
 
-            Console.WriteLine($"{CurJob} : {WeaponName}으로 ");
+            if (LeftEquip)
+            {
+                Console.WriteLine($"{HandType.LeftHand}에 {WeaponName} 장착 시도 : 성공");
+            }
+            else if (RightEquip)
+            {
+                Console.WriteLine($"{HandType.RightHand}에 {WeaponName} 장착 시도 : 성공");
+            }
+
+            AlreadyEquip = false;
         }
     }
 }
