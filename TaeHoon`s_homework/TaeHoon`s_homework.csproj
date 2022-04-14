@@ -35,5 +35,14 @@
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Class.cs" />
+    <Compile Include="FireSword.cs" />
+    <Compile Include="HeavyShield.cs" />
+    <Compile Include="Human.cs" />
+    <Compile Include="LightShield.cs" />
+    <Compile Include="WaterSword.cs" />
+    <Compile Include="Weapon.cs" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
