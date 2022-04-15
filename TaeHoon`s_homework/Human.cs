@@ -30,6 +30,7 @@ namespace TaeHoon_s_homework
 
         bool sword = false, shield = false;
 
+        bool EquipCall, UnEquipCall;
         string Job = "Empty_Job";
 
         public void EquipWeapon(Weapon weapon, HandType handType)
@@ -40,7 +41,6 @@ namespace TaeHoon_s_homework
             WeaponDamage = weapon.damage;
 
             WeaponKinds[value] = weapon.GetType().Name;
-
 
             if (value == 0)
             {
@@ -56,7 +56,7 @@ namespace TaeHoon_s_homework
             if (weapon is Sword) sword = true;
             else if (weapon is Shield) shield = true;
 
-
+            EquipCall = true;
         }
         public void Test(Weapon weapon)
         {
@@ -64,24 +64,40 @@ namespace TaeHoon_s_homework
             else if (weapon is Shield) Console.WriteLine("shield");
         }
 
-        string CurJob()
+        private string SetJob()
         {
             if ((LeftEquip || RightEquip) && sword)
-                return "검사띠";
+            {
+                Job = "검사띠";
+                return Job;
+            }
             else if ((LeftEquip || RightEquip) && shield)
-                return "탱커띠";
+            {
+                Job = "탱커띠";
+                return Job;
+            }
             else if ((LeftEquip && RightEquip) && (sword && shield))
-                return "병사띠";
-            return "Empty_Job";
+            {
+                Job = "병사띠";
+                return Job;
+            }
+            else
+            {
+                Job = "Empty_Job";
+                return Job;
+            }
         }
-        public void DisamountWeapon(HandType handType)
+        public void UnEquipWeapon(HandType handType)
         {
             int value = (int)handType;
 
             if (value == 1) RightEquip = false;
             else LeftEquip = false;
+
             WeaponKinds[value] = "";
+            UnEquipCall = true;
         }
+
 
         public void Action()
         {
@@ -94,6 +110,7 @@ namespace TaeHoon_s_homework
             if (LeftEquip)
             {
                 Console.WriteLine($"{HandType.LeftHand}에 {WeaponName} 장착 시도 : 성공");
+                Console.WriteLine($"전투력 갱신 : {Power} -> {WeaponDamage}");
             }
             else if (RightEquip)
             {
@@ -101,6 +118,9 @@ namespace TaeHoon_s_homework
             }
 
             AlreadyEquip = false;
+
+            Power += WeaponDamage;
+            WeaponDamage = 0;
         }
     }
 }
