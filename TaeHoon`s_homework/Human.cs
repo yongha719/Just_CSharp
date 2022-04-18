@@ -6,58 +6,91 @@ using System.Threading.Tasks;
 
 namespace TaeHoon_s_homework
 {
+    class Hand
+    {
+        public int Attack;
+        public int Defense;
+        public Weapon Weapon;
+        public bool Equip = false;
+        public int SetPower(int playerpower, Weapon Weapon)
+        {
+
+            if (Weapon is Sword)
+                Attack = (playerpower + Weapon.damage);
+            else if (Weapon is Shield)
+                Attack = (playerpower + Weapon.damage) / 2;
+
+            return Attack;
+        }
+
+    }
+
     public class Human
     {
         string Name;
-        int Power;
+        int AttackPower, CombatPower, PlayerPower;
 
         public Human(string name, int power)
         {
             this.Name = name;
-            this.Power = power;
+            this.PlayerPower = power;
+
+            LeftHand = new Hand();
+            RightHand = new Hand();
         }
         public enum HandType
         {
             LeftHand = 0, RightHand = 1, end = 2
         }
 
-        public bool LeftEquip, RightEquip, AlreadyEquip;
+        public bool ALEquip, AREquip;
 
         string[] WeaponKinds = new string[(int)HandType.end];
 
-        string WeaponName;
-        int WeaponDamage;
+        string NewWeaponName;
+        Hand LeftHand, RightHand;
 
-        bool sword = false, shield = false;
 
-        bool EquipCall, UnEquipCall;
-        string Job = "Empty_Job";
+        bool LeftCall, RightCall, UnEquipCall;
+
+        string Job = "Empty_Job", stat = "";
 
         public void EquipWeapon(Weapon weapon, HandType handType)
         {
             int value = (int)handType;
 
-            WeaponName = weapon.name;
-            WeaponDamage = weapon.damage;
-
             WeaponKinds[value] = weapon.GetType().Name;
 
             if (value == 0)
             {
-                if (!LeftEquip)
-                    LeftEquip = true;
+                if (!LeftHand.Equip)
+                {
+                    LeftHand.Weapon = weapon;
+                    stat = (weapon is Sword) ? "공격력" : "방어력";
+                }
                 else
-                    AlreadyEquip = true;
+                {
+                    NewWeaponName = weapon.name;
+                    ALEquip = true;
+                }
+                LeftCall = true;
             }
             else
             {
-                RightEquip = true;
+                if (!RightHand.Equip)
+                {
+                    RightHand.Weapon = weapon;
+                    stat = (weapon is Sword) ? "공격력" : "방어력";
+                }
+                else
+                {
+                    NewWeaponName = weapon.name;
+                    AREquip = true;
+                }
+                RightCall = true;
             }
-            if (weapon is Sword) sword = true;
-            else if (weapon is Shield) shield = true;
-
-            EquipCall = true;
         }
+
         public void Test(Weapon weapon)
         {
             if (weapon is Sword) Console.WriteLine("sword");
@@ -66,33 +99,39 @@ namespace TaeHoon_s_homework
 
         private string SetJob()
         {
-            if ((LeftEquip || RightEquip) && sword)
-            {
-                Job = "검사띠";
-                return Job;
-            }
-            else if ((LeftEquip || RightEquip) && shield)
-            {
-                Job = "탱커띠";
-                return Job;
-            }
-            else if ((LeftEquip && RightEquip) && (sword && shield))
+            if ((LeftHand.Weapon is Sword && RightHand.Weapon is Shield) || (LeftHand.Weapon is Shield && RightHand.Weapon is Sword))
             {
                 Job = "병사띠";
-                return Job;
+            }
+            else if ((LeftHand.Weapon is Sword || RightHand.Weapon is Sword) || (LeftHand.Weapon is Sword && RightHand.Weapon is Sword))
+            {
+                Job = "검사띠";
+            }
+            else if ((LeftHand.Weapon is Shield || RightHand.Weapon is Shield) || (LeftHand.Weapon is Shield && RightHand.Weapon is Shield))
+            {
+                Job = "탱커띠";
             }
             else
             {
                 Job = "Empty_Job";
-                return Job;
             }
+            return Job;
         }
+
         public void UnEquipWeapon(HandType handType)
         {
             int value = (int)handType;
 
-            if (value == 1) RightEquip = false;
-            else LeftEquip = false;
+            if (value == 0)
+            {
+                LeftHand.Weapon = null;
+                ALEquip = false;
+            }
+            else
+            {
+                RightHand.Weapon = null;
+                AREquip = false;
+            }
 
             WeaponKinds[value] = "";
             UnEquipCall = true;
@@ -101,26 +140,116 @@ namespace TaeHoon_s_homework
 
         public void Action()
         {
-            if (!LeftEquip && !RightEquip)
+
+            if (ALEquip)
+            {
+                Console.WriteLine($"{HandType.LeftHand}에 {NewWeaponName} 무기 장착 시도 : 실패");
+                Console.WriteLine($"이미 {HandType.LeftHand}에 {LeftHand.Weapon.name}이(가) 있어서, {NewWeaponName}을(를) 장착할 수 없습니다.");
+                LeftCall = false;
+                ALEquip = false;
+                return;
+            }
+            else if (AREquip)
+            {
+                Console.WriteLine($"{HandType.RightHand}에 {NewWeaponName} 무기 장착 시도 : 실패");
+                Console.WriteLine($"이미 {HandType.RightHand}에 {RightHand.Weapon.name}이(가) 있어서, {NewWeaponName}을(를) 장착할 수 없습니다.");
+                RightCall = false;
+                AREquip = false;
+                return;
+            }
+
+            if (UnEquipCall)
+            {
+                if (LeftHand.Equip)
+                {
+                    Console.WriteLine($"{HandType.LeftHand}에 무기 해제 시도 : 성공");
+                    Console.WriteLine($"직업 갱신 : {Job} -> {SetJob()}");
+                }
+                else
+                {
+                    Console.Write($"{HandType.LeftHand}에 무기 해제 시도 : 실패 ");
+                    Console.WriteLine($"이미 빈손입니다");
+                    
+                }
+
+                if (RightHand.Equip)
+                {
+                    Console.WriteLine($"{HandType.RightHand}에 무기 해제 시도 : 성공");
+                    Console.WriteLine($"직업 갱신 : {Job} -> {SetJob()}");
+                }
+                else
+                {
+                    Console.Write($"{HandType.RightHand}에 무기 해제 시도 : 실패 ");
+                    Console.WriteLine($"이미 빈손입니다");
+                    RightHand.Equip = false;
+                }
+                return;
+            }
+
+
+            if (LeftCall)
+            {
+                if (!LeftHand.Equip)
+                {
+                    Console.WriteLine($"{HandType.LeftHand}에 {LeftHand.Weapon.name} 장착 시도 : 성공");
+                    Console.WriteLine($"전투력 : {CombatPower} -> {SetPower(PlayerPower, LeftHand.Weapon)}");
+                    Console.WriteLine("유저 공격력(방어력) 갱신");
+                    Console.WriteLine($"{stat}: {AttackPower} -> {LeftHand.Weapon.damage}");
+                    Console.WriteLine($"직업 갱신 : {Job} -> {SetJob()}");
+                    Attack();
+                    AttackPower = LeftHand.Weapon.damage;
+                    LeftHand.Equip = true;
+                }
+                else
+                {
+                    Console.WriteLine($"{HandType.LeftHand}에 {LeftHand.Weapon.name} 장착 시도 : 실패");
+                }
+                LeftCall = false;
+                return;
+            }
+            if (RightCall)
+            {
+                if (!RightHand.Equip)
+                {
+                    Console.WriteLine($"{HandType.RightHand}에 {RightHand.Weapon.name} 장착 시도 : 성공");
+                    Console.WriteLine($"전투력 : {CombatPower} -> {SetPower(PlayerPower , RightHand.Weapon)}");
+                    Console.WriteLine("유저 공격력(방어력) 갱신");
+                    Console.WriteLine($"{stat} : {AttackPower} -> {RightHand.Weapon.damage}");
+                    Console.WriteLine($"직업 갱신 : {Job} -> {SetJob()}");
+                    Attack();
+                    RightHand.Equip = true;
+                }
+                else
+                {
+                    Console.WriteLine($"{HandType.RightHand}에 {RightHand.Weapon.name} 장착 시도 : 실패");
+                }
+                RightCall = false;
+                return;
+            }
+
+            if (!LeftHand.Equip && !RightHand.Equip)
             {
                 Console.WriteLine($@"공격 시도..{Name}[{Job}] : 무기가 읎다 자식아");
                 return;
             }
 
-            if (LeftEquip)
-            {
-                Console.WriteLine($"{HandType.LeftHand}에 {WeaponName} 장착 시도 : 성공");
-                Console.WriteLine($"전투력 갱신 : {Power} -> {WeaponDamage}");
-            }
-            else if (RightEquip)
-            {
-                Console.WriteLine($"{HandType.RightHand}에 {WeaponName} 장착 시도 : 성공");
-            }
+        }
 
-            AlreadyEquip = false;
+        public int SetPower(int playerpower, Weapon Weapon)
+        {
 
-            Power += WeaponDamage;
-            WeaponDamage = 0;
+            if (Weapon is Sword)
+                CombatPower += (playerpower + Weapon.damage);
+            else if (Weapon is Shield)
+                CombatPower += (playerpower + Weapon.damage) / 2;
+
+
+            return CombatPower;
+        }
+
+        void Attack()
+        {
+
         }
     }
 }
